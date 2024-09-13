@@ -1,6 +1,6 @@
 /**
  *  File Name: dictionaryList.cpp
- *  Assignment: ENSF 614 Fall 2024 - Lab 1 Exercise
+ *  Assignment: ENSF 614 Fall 2024 - Lab 1 Exercise B
  *  Created by: Mahmood Moussavi
  *  Completed by: Yael Gonzalez
  *  Submission Date: September 18, 2024
@@ -173,22 +173,74 @@ void DictionaryList::make_empty()
 
 void DictionaryList::find(const Key &keyA)
 {
-  cout << "\nDon't know how to find " << keyA << " (or any other key).\n";
-  cout << "... so exit is being called.\n";
-  exit(1);
+  for (Node *curr = headM; !curr; curr = curr->nextM)
+  {
+    if (curr->keyM == keyA)
+    {
+      cursorM = curr;
+      return;
+    }
+  }
+  cursorM = 0; // if not found put cursor in off-list state
 }
 
 void DictionaryList::destroy()
 {
-  cout << "\nWARNING: DictionaryList::destroy() is abandoning nodes\n"
-       << "when it should be deleting them!\n";
+  while (headM)
+  {
+    Node *temp = headM;
+    headM = temp->nextM;
+    delete temp;
+  }
   headM = 0;
+  cursorM = 0;
+  sizeM = 0;
 }
 
 void DictionaryList::copy(const DictionaryList &source)
 {
+  // If empty, initialize the *this with default values
+  if (!source.headM)
+  {
+    headM = 0;
+    sizeM = 0;
+    cursorM = 0;
+    return;
+  }
 
-  cout << "\nDictionaryList::copy is not implemented properly,\n"
-       << "so the program is calling exit.\n";
-  exit(1);
+  // Create a new head for the *this using source's head data
+  headM = new Node(source.headM->keyM, source.headM->datumM, 0);
+
+  // Initialize pointers to traverse source and *this lists
+  Node *srcNode = source.headM->nextM;
+  Node *thisNode = headM;
+
+  // Copy the rest of the nodes from the source list to *this
+  while (srcNode)
+  {
+    thisNode->nextM = new Node(srcNode->keyM, srcNode->datumM, 0);
+    thisNode = thisNode->nextM;
+    srcNode = srcNode->nextM;
+  }
+
+  // Copy the size of the source list to *this
+  sizeM = source.sizeM;
+
+  // Make cursor of this *this point to the twin of whatever the source's cursor points to
+  if (source.cursorM)
+  {
+    Node *srcCursor = source.headM;
+    Node *destCursor = headM;
+
+    while (srcCursor != source.cursorM)
+    {
+      srcCursor = srcCursor->nextM;
+      destCursor = destCursor->nextM;
+    }
+    cursorM = destCursor;
+  }
+  else
+  {
+    cursorM = 0;
+  }
 }
